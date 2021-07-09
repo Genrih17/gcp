@@ -7,10 +7,10 @@ image = "centos-cloud/centos-7"
 delete_protection = "true"
 disk_type = "pd-ssd"
 disk_size = 35
-startup_script = "yum install -y nginx; systemctl enable nginx; systemctl start nginx"
+startup_script = "yum install -y nginx; systemctl enable nginx; systemctl start nginx; cat <<EOF > /usr/share/nginx/html/index.html <h1> Hello from Henadzi Ivashkevich </h1> EOF"
 vm_timeout_delete = "40m"
 student_name = "hivashkevich"
-student_ID = 1
+student_IDnum = 1
 
 labels = {
 	server_type = "nginx_server"

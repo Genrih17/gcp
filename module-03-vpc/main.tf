@@ -87,14 +87,16 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.${var.student_IDnum}.1.0/24"
   region        = var.region
   network       = google_compute_network.vpc_net.id
+  description   = "iternal-subnetwork"
 }
 
 resource "google_compute_subnetwork" "subnet2" {
-  name          = "internal-subnetwork"
+  name          = "external-subnetwork"
   ip_cidr_range = "10.${var.student_IDnum}.2.0/24"
   region        = var.region
   network       = google_compute_network.vpc_net.id
-
+  description   = "external-subnetwork"
+}
 resource "google_compute_instance" "default" {
  name         = var.vm_name 
  machine_type = var.type
@@ -108,7 +110,6 @@ resource "google_compute_instance" "default" {
 
  network_interface {
    network = "${var.student_name}-vpc"
-   subnetwork = "subnet"
    access_config {}
 }
 
