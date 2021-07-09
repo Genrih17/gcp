@@ -33,7 +33,7 @@ variable "vm_timeout_delete" {}
 variable "startup_script"{}
 variable "delete_protection" {}
 variable "student_name" {}
-variable "student_ID"{}
+variable "student_IDnum"{}
 
 
 
@@ -45,19 +45,55 @@ provider "google" {
  zone        = var.zone
 }
 
-resource "google_compute_disk" "default" {
- name = "disk"
- type = var.disk_type
- zone = var.zone
- size = "10"
-}
+# resource "google_compute_disk" "default" {
+# name = "disk"
+# type = var.disk_type
+# zone = var.zone
+# size = "10"
+#}
 
-resource "google_compute_network" "vpc_network" {
-  network = "${var.student_name}-vpc"
+resource "google_compute_network" "vpc_net" {
+  name = "${var.student_name}-vpc"
   description = "network with vpc"
-  name = "vpc-network"
 }
 
+resource "google_compute_firewall" "external" {
+  name    = "external-firewall"
+  network = google_compute_network.vpc_net.name
+  
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "22"]
+  }
+  direction = "EGRESS"
+#  source_tags = ["web"]
+  description = "external firewall rule"
+}
+
+resource "google_compute_firewall" "internal" {
+  name    = "internal-firewall"
+  network = google_compute_network.vpc_net.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+  direction = "INGRESS"
+  description = "internal firewall rule"
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "internal-subnetwork"
+  ip_cidr_range = "10.${var.student_IDnum}.1.0/24"
+  region        = var.region
+  network       = google_compute_network.vpc_net.id
+}
+
+resource "google_compute_subnetwork" "subnet2" {
+  name          = "internal-subnetwork"
+  ip_cidr_range = "10.${var.student_IDnum}.2.0/24"
+  region        = var.region
+  network       = google_compute_network.vpc_net.id
 
 resource "google_compute_instance" "default" {
  name         = var.vm_name 
@@ -88,10 +124,10 @@ resource "google_compute_instance" "default" {
 metadata_startup_script = var.startup_script
 }
 
-resource "google_compute_attached_disk" "default" {
- disk = google_compute_disk.default.id
- instance = google_compute_instance.default.id
-}
+#resource "google_compute_attached_disk" "default" {
+# disk = google_compute_disk.default.id
+# instance = google_compute_instance.default.id
+#}
 
 output "external_ip" { 
 	value = "http://${google_compute_instance.default.network_interface.0.access_config.0.nat_ip}/"
