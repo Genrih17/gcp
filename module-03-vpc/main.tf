@@ -1,43 +1,3 @@
-variable "vm_name"{
-    type = string
-}
-
-variable "project"{
-    type = string
-}
-   
-variable "region"{
-    type = string
-    default = "us-cenral1"
-}
-
-variable "zone"{
-    type = string
-    default = "us-central1-c"
-}
-
-variable "image"{
-    type = string
-}
-
-variable "type"{
-    type = string
-}
-
-variable "disk_size" {}
-variable "disk_type" {
-  type = string
-}
-variable "labels" {}
-variable "vm_timeout_delete" {}
-variable "startup_script"{}
-variable "delete_protection" {}
-variable "student_name" {}
-variable "student_IDnum"{}
-
-
-
-
 provider "google" {
  credentials = file("../CREDENTIALS_FILE.json")
  project     = var.project
@@ -118,7 +78,7 @@ resource "google_compute_instance" "default" {
 	"https-server"
 	]
  description = "hivashkevich-nginx-with_vpc"
- deletion_protection = var.delete_protection 
+# deletion_protection = var.delete_protection 
  timeouts {
     delete = var.vm_timeout_delete
   }
