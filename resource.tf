@@ -1,13 +1,36 @@
-resource "google_storage_bucket" "tf-bucket-near" {
-  name          = "ivashkevich-config-bucket"
-  location      = us-central1
-  force_destroy = true
-  uniform_bucket_level_access = true
-  storage_class = "STANDART"
+resource "random_id" "db-name-suffix" {
+  byte_length            = 4
 }
 
-resource "google_storage_bucket_object" "index" {
-  name   = "index.html"
-  source = "index.html"
-  bucket = google_storage_bucket.ivashkevich-config-bucket.name
+resource "random_password" "password" {
+  length                 = 16
+}
+
+resource "google_sql_database_instance" "instance" {
+  name                   = "private-instance-${random_id.db-name-suffix.hex}"
+  region                 = "us-central1"
+  database_version = "MYSQL_8_0"
+  settings {
+    tier                 = "db-f1-micro"
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+    availability_type    = "REGIONAL"
+    ip_configuration {
+      ipv4_enabled       = false
+      private_network    = "networks/default"
+    }
+  }
+}
+
+resource "google_sql_database" "database" {
+  name                   = "my-database"
+  instance               = google_sql_database_instance.instance.name
+}
+
+resource "google_sql_user" "users" {
+  name                   = "hivashkevich"
+  password               = random_password.password.result
+  instance               = google_sql_database_instance.instance.name
 }
