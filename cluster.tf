@@ -1,6 +1,6 @@
 resource "google_container_cluster" "sql-cluster" {
-  name                     = "sql-cluster"
-  location                 = us-central1-c
+  name                     = var.sql_name
+  location                 = var.zone 
   ip_allocation_policy {}
   initial_node_count       = 1
   workload_identity_config {
@@ -10,7 +10,7 @@ resource "google_container_cluster" "sql-cluster" {
 
 resource "google_container_node_pool" "sql-noge-pool" {
   name       = "sql-node-pool"
-  location   = us-central1-c
+  location   = var.zone
   cluster    = google_container_cluster.sql-cluster.name
   node_count = 1
 
@@ -22,8 +22,8 @@ resource "google_container_node_pool" "sql-noge-pool" {
 module "workload-identity" {
   source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   cluster_name = google_container_cluster.sql-cluster.name
-  name       = "sql-kube-sa"
+  name       = var.sa_name
   namespace  = kubernetes_namespace.sql.metadata.0.name
-  project_id = "arcane-shape-319007"
+  project_id = var.project
   roles      = ["roles/cloudsql.admin"]
 }

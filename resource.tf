@@ -8,8 +8,8 @@ resource "random_password" "password" {
 
 resource "google_sql_database_instance" "instance" {
   name                   = "private-instance-${random_id.db-name-suffix.hex}"
-  region                 = "us-central1"
-  database_version = "MYSQL_8_0"
+  region                 = var.region
+  database_version       = "MYSQL_8_0"
   settings {
     tier                 = "db-f1-micro"
     backup_configuration {
@@ -19,7 +19,7 @@ resource "google_sql_database_instance" "instance" {
     availability_type    = "REGIONAL"
     ip_configuration {
       ipv4_enabled       = false
-      private_network    = "networks/default"
+      private_network    = "projects/arcane-shape-319007/global/networks/default"
     }
   }
 }
@@ -30,7 +30,7 @@ resource "google_sql_database" "database" {
 }
 
 resource "google_sql_user" "users" {
-  name                   = "hivashkevich"
+  name                   = var.username
   password               = random_password.password.result
   instance               = google_sql_database_instance.instance.name
 }

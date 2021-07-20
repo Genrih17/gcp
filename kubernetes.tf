@@ -4,6 +4,27 @@ resource "kubernetes_namespace" "sql" {
   }
 }
 
+resource "kubernetes_secret" "mysql-secret" {
+  metadata {
+    name = "mysql-auth"
+    namespace = kubernetes_namespace.sql.metadata.0.name
+  }
+
+  data = {
+    password = random_password.password.result
+  }
+}
+
+resource "kubernetes_config_map" "mysql-script" {
+  metadata {
+    name = "mysql-script"
+    namespace = kubernetes_namespace.sql.metadata.0.name
+  }
+  data = {
+    "script.sql" = "${file("script.sql")}"
+  }
+}
+
 resource "kubernetes_deployment" "sql-deployment" {
   metadata {
     name = "sql-deployment"
@@ -49,7 +70,7 @@ resource "kubernetes_deployment" "sql-deployment" {
             mount_path = "/home/cloudsdk"
           }
         }
-        service_account_name = module.my-app-workload-identity.k8s_service_account_name
+        service_account_name = module.workload-identity.k8s_service_account_name
         volume {
           name = "workdir"
           config_map {
