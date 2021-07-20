@@ -4,7 +4,7 @@ resource "google_container_cluster" "gke-cluster" {
   remove_default_node_pool = true
   initial_node_count       = 1
   workload_identity_config {
-    identity_namespace     = "arcane-shape-319007.svc.id.goog"
+    identity_namespace     = "${var.project}.svc.id.goog"
   }
 }
 
