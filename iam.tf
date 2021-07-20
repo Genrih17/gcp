@@ -6,7 +6,7 @@ resource "google_service_account" "ivashkevich-storage" {
 resource "google_project_iam_custom_role" "customrole" {
   role_id      = "customrole"
   title        = "custom role for VMs and buckets"
-  project      = "arcane-shape-319007"
+  project      = var.project 
   stage        = "ALPHA"
   permissions  = ["compute.instances.get", "compute.instances.list", "storage.objects.get", "storage.objects.list"]
 }

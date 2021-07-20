@@ -1,6 +1,6 @@
 resource "google_container_cluster" "gke-cluster" {
   name                     = "gke-cluster"
-  location                 = us-central1-c
+  location                 = var.zone 
   remove_default_node_pool = true
   initial_node_count       = 1
   workload_identity_config {
@@ -10,7 +10,7 @@ resource "google_container_cluster" "gke-cluster" {
 
 resource "google_container_node_pool" "nginx-noge-pool" {
   name       = "nginx-node-pool"
-  location   = us-central1-c
+  location   = var.zone
   cluster    = google_container_cluster.gke-cluster.name
   node_count = 1
 
@@ -22,8 +22,8 @@ resource "google_container_node_pool" "nginx-noge-pool" {
 module "my-app-workload-identity" {
   source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   cluster_name = google_container_cluster.gke-cluster.name
-  name       = "nginx-kube-sa"
+  name       = var.kub_name
   namespace  = kubernetes_namespace.nginxns.metadata.0.name
-  project_id = "arcane-shape-319007"
+  project_id = var.project
   roles      = ["roles/customrole"]
 }
