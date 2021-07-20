@@ -1,7 +1,11 @@
 provider "google" {
-  project = arcane-shape-319007
-  region  = us-central1
-  zone    = us-central1-c
+  credentials = file("~/CREDENTIALS_FILE.json")
+  project = var.project 
+  region  = var.region
+  zone    = var.zone
+}
+
+data "google_client_config" "provider" {
 }
 
 provider "kubernetes" {
