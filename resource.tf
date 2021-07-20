@@ -1,8 +1,7 @@
-resource "google_storage_bucket" "tf-bucket-near" {
+resource "google_storage_bucket" "ivashkevich-config-bucket" {
   name          = "ivashkevich-config-bucket"
   location      = var.zone
   force_destroy = true
-  uniform_bucket_level_access = true
   storage_class = "STANDART"
 }
 
