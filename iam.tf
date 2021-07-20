@@ -1,28 +1,40 @@
-resource "google_service_account" "ivashkevich-storage" {
-  account_id   = "ivashkevich-storage"
-  display_name = "Storage SA"
+resource "google_service_account" "service-deploy" {
+  account_id   = "service-deploy"
+  display_name = "DeployService"
 }
 
-resource "google_project_iam_custom_role" "customrole" {
-  role_id      = "customrole"
-  title        = "custom role for VMs and buckets"
-  project      = var.project 
-  stage        = "ALPHA"
-  permissions  = ["compute.instances.get", "compute.instances.list", "storage.objects.get", "storage.objects.list"]
+resource "google_project_iam_member" "deploy-account-admin" {
+  role = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.service-deploy.email}"
 }
 
-resource  "google_storage_bucket_iam_member" "creater-storage-account-iam" {
-  bucket       = google_storage_bucket.ivashkevich-config-bucket.name
-  role         = "roles/storage.objectCreator"
-  member       = "serviceAccount:${google_service_account.ivashkevich-storage.email}"
+resource "google_project_iam_member" "deploy-account-data" {
+  role = "roles/datastore.user"
+  member = "serviceAccount:${google_service_account.service-deploy.email}"
 }
 
-resource "google_service_account" "ivashkevich-gke" {
-  account_id   = "ivashkevich-gke"
-  display_name = "GKE SA"
+resource "google_project_iam_member" "deploy-account-mem" {
+  role = "roles/memcache.admin"
+  member = "serviceAccount:${google_service_account.service-deploy.email}"
 }
 
-resource "google_project_iam_member" "custom-account-iam" {
-  role = google_project_iam_custom_role.customrole.id
-  member = "serviceAccount:${google_service_account.ivashkevich-gke.email}"
+resource "google_project_iam_member" "deploy-account-sql" {
+  role = "roles/cloudsql.admin"
+  member = "serviceAccount:${google_service_account.service-deploy.email}"
+}
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.run_service.location
+  project     = google_cloud_run_service.run_service.project
+  service     = google_cloud_run_service.run_service.name
+  policy_data = data.google_iam_policy.noauth.policy_data
 }

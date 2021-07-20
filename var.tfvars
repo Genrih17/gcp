@@ -1,5 +1,3 @@
-kub_name = "nginx-kube-sa"
-project = "arcane-shape-319007"
-region = "us-central1"
-zone = "us-central1-c"
-username = "hivashkevich"
+project = "gcp-lab-1-hivashkevich"
+region  = "us-central1"
+zone    = "us-central1-c"
